@@ -24,7 +24,11 @@
         <button mat-button>SHARE</button>
       </mat-card-actions>
     </mat-card>
+    <div [hidden]="dish">
+      <mat-spinner></mat-spinner><h4>Loading . . . Please Wait</h4>
+    </div> 
   </div>
+  
 
   <div fxFlex="40">
     <mat-card *ngIf="dish">
@@ -45,6 +49,10 @@
         </mat-list>
       </mat-card-content>
     </mat-card>
-  </div>  
+    <div [hidden]="dish">
+      <mat-spinner></mat-spinner><h4>Loading . . . Please Wait</h4>
+    </div>
+  </div>
+    
 
 </div>
