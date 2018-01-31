@@ -30,7 +30,7 @@
   </div>
   
 
-  <div fxFlex="40" *ngIf="dish">
+  <div fxFlex="40" *ngIf="dish" [formGroup]="commentForm">
     <mat-card >
       <mat-card-header>
         <mat-card-title>
@@ -42,11 +42,53 @@
           <mat-list-item fxLayout="column"
                           fxLayout.sm="column"
                           fxLayout.xs="column">
-            <p mat-line>{{comment.comment}}</p>
-            <p mat-line>{{comment.rating}} Stars</p>
-            <p mat-line> -- {{comment.author}} {{comment.date | date}}</p>
+            <p matLine>{{comment.comment}}</p>
+            <p matLine>{{comment.rating}} Stars</p>
+            <p matLine> -- {{comment.author}} {{comment.date | date}}</p>
           </mat-list-item> 
         </mat-list>
+        <mat-list >
+          <mat-list-item >
+            <p matLine *ngIf="commentForm.value.comment" >{{commentForm.value.comment}}</p>
+            <p matLine *ngIf="commentForm.value.rating" >{{commentForm.value.rating}} Stars</p>
+            <p matLine *ngIf="commentForm.value.author"><span> -- {{commentForm.value.author}}</span></p>
+          </mat-list-item> 
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-content>
+        <mat-input-container
+      dividerColor="{{(formErrors.author) ? 'warn' : 'primary'}}">
+      <input matInput formControlName="author" placeholder="Name" type="text">
+      <mat-hint>
+        <span [hidden]="!(formErrors.author)">
+          {{formErrors.author}}</span>
+      </mat-hint>
+    </mat-input-container>
+
+    <div>
+      <mat-slider min="1" formControlName="rating" max="5" step="1" value="5" thumbLabel tickInterval="1" required>
+      </mat-slider>
+      <mat-hint>
+        <span [hidden]="!(formErrors.rating)">
+          {{formErrors.rating}}</span>
+      </mat-hint>
+    </div>
+    
+
+    <mat-input-container dividerColor="{{(formErrors.comment) ? 'warn' : 'primary'}}">
+      <textarea matInput formControlName="comment" placeholder="Your Comment" rows=10></textarea>
+      <mat-hint>
+        <span [hidden]="!(formErrors.comment)">
+          {{formErrors.comment}}</span>
+      </mat-hint>
+    </mat-input-container>
+    <br>
+    <br>
+    <button type="submit" mat-button class="background-primary text-floral-white" (click)="onSubmit()" [disabled]="commentForm.invalid">
+      Submit
+    </button>
       </mat-card-content>
     </mat-card> 
   </div>

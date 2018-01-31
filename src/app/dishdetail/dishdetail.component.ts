@@ -10,6 +10,12 @@ import { DishService } from '../services/dish.service';
 import 'rxjs/add/operator/switchMap';
 
 
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+
+import { Feedback } from '../shared/feedback';
+
+
+
 //import { Comment } from '../shared/comment';
 
 
@@ -26,11 +32,41 @@ export class DishdetailComponent implements OnInit {
   dishIds: number[];
   prev: number;
   next: number;
-  //comments: Comment[] = this.dish.comments;
+  feedbackForm: FormGroup;
+  feedback: Feedback;
+  commentForm: FormGroup;
+  comment: Comment;
+ 
+  formErrors = {
+    'author': '',
+    'rating': '',
+    'comment': '',
+    'date': ''
+  };
+
+  validationMessages = {
+    'author': {
+      'required':      'Name is required.',
+      'minlength':     'Name must be at least 2 characters long.',
+      'maxlength':     'Name cannot be more than 30 characters long.'
+    },
+    'comment': {
+      'required':      'Comment is required.',
+      'minlength':     'Comment must be at least 1 characters long.',
+      'maxlength':     'Comment cannot be more than 200 characters long.'
+    },
+    'rating': {
+      'required':      'Rating is required.',
+    },
+  };
+
 
   constructor(private dishservice: DishService,
     private route: ActivatedRoute,
-    private location: Location) { }
+    private location: Location,
+    private fb: FormBuilder) { 
+      this.createComment();
+    }
 
     ngOnInit() {
 
@@ -49,5 +85,48 @@ export class DishdetailComponent implements OnInit {
   goBack(): void {
     this.location.back();
   }
+  createComment() {
+    this.commentForm = this.fb.group({
+      author: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)] ],
+      rating: ['' , [Validators.required]],
+      comment: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)] ],
+      date: new Date(),
+    });
 
-}
+    this.commentForm.valueChanges
+        .subscribe(data => this.onValueChanged(data));
+
+    this.onValueChanged(); // (re)set validation messages now
+  }
+
+  onValueChanged(data?: any) { 
+    if (!this.commentForm) { return; }
+    const form = this.commentForm;
+    for (const field in this.formErrors) {
+      // clear previous error message (if any)
+      this.formErrors[field] = '';
+      const control = form.get(field); 
+      if (control && control.dirty && !control.valid) {
+        const messages = this.validationMessages[field];
+        for (const key in control.errors) {
+          this.formErrors[field] += messages[key] + ' ';
+        }
+      }
+    } 
+
+  }
+
+  onSubmit() {
+    const comment = this.commentForm.value;
+    this.dish.comments.push(comment);
+    this.commentForm.reset({
+      author: '',
+      comment: '',
+      rating: 5,
+      date: new Date().toISOString()
+    });
+  }
+
+  }
+
+
