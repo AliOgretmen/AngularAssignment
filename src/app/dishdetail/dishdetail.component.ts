@@ -29,6 +29,7 @@ export class DishdetailComponent implements OnInit {
 
  
   dish: Dish;
+  dishcopy = null;
   dishIds: number[];
   prev: number;
   next: number;
@@ -75,8 +76,8 @@ export class DishdetailComponent implements OnInit {
       this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds);
       this.route.params
         .switchMap((params: Params) => this.dishservice.getDish(+params['id']))
-        .subscribe(dish => { this.dish = dish; this.setPrevNext(dish.id); },
-        errmess => this.errMess = <any>errmess);
+        .subscribe(dish => { this.dish = dish; this.dishcopy = dish; this.setPrevNext(dish.id); },
+        errmess => { this.dish = null; this.errMess = <any>errmess; });
     }
   
     setPrevNext(dishId: number) {
@@ -102,6 +103,19 @@ export class DishdetailComponent implements OnInit {
     this.onValueChanged(); // (re)set validation messages now
   }
 
+  onSubmit() {
+    const comment = this.commentForm.value;
+    this.dishcopy.comments.push(comment);
+    this.dishcopy.save()
+    .subscribe(dish => { this.dish = dish; console.log(this.dish); });
+    this.commentForm.reset({
+      author: '',
+      comment: '',
+      rating: 5,
+      date: new Date().toISOString()
+    });
+  } 
+
   onValueChanged(data?: any) { 
     if (!this.commentForm) { return; }
     const form = this.commentForm;
@@ -116,18 +130,6 @@ export class DishdetailComponent implements OnInit {
         }
       }
     } 
-
-  }
-
-  onSubmit() {
-    const comment = this.commentForm.value;
-    this.dish.comments.push(comment);
-    this.commentForm.reset({
-      author: '',
-      comment: '',
-      rating: 5,
-      date: new Date().toISOString()
-    });
   }
 
   }
