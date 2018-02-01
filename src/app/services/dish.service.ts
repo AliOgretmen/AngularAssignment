@@ -16,25 +16,29 @@ import 'rxjs/add/operator/map';
 export class DishService {
 
   constructor(private http: Http,
-    private ProcessHttpmsgService: ProcessHttpmsgService) { }
+    private processHttpmsgService: ProcessHttpmsgService) { }
     getDishes(): Observable<Dish[]> {
       return this.http.get(baseURL + 'dishes')
-                      .map(res => { return this.ProcessHttpmsgService.extractData(res); });
+                      .map(res => { return this.processHttpmsgService.extractData(res); })
+                      .catch(error => { return this.processHttpmsgService.handleError(error); });
     }
   
     getDish(id: number): Observable<Dish> {
       return  this.http.get(baseURL + 'dishes/'+ id)
-                      .map(res => { return this.ProcessHttpmsgService.extractData(res); });
+                      .map(res => { return this.processHttpmsgService.extractData(res); })
+                      .catch(error => { return this.processHttpmsgService.handleError(error); });
     }
   
     getFeaturedDish(): Observable<Dish> {
       return this.http.get(baseURL + 'dishes?featured=true')
-                      .map(res => { return this.ProcessHttpmsgService.extractData(res)[0]; });
+                      .map(res => { return this.processHttpmsgService.extractData(res)[0]; })
+                      .catch(error => { return this.processHttpmsgService.handleError(error); });
     }
   
-    getDishIds(): Observable<number[]> {
+    getDishIds(): Observable<number[] | any> {
       return this.getDishes()
-        .map(dishes => { return dishes.map(dish => dish.id) });
+        .map(dishes => { return dishes.map(dish => dish.id) })
+        .catch(error => { return error; } );
     }
    
 }
