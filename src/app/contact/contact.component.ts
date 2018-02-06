@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Feedback, ContactType } from '../shared/feedback';
-import { flyInOut } from '../animations/app.animation';
+import { flyInOut, visibility, expand } from '../animations/app.animation';
+import { FeedbackService } from '../services/feedback.service';
 
 @Component({
   selector: 'app-contact',
@@ -14,6 +15,8 @@ import { flyInOut } from '../animations/app.animation';
     },
     animations: [
       flyInOut(),
+      visibility(),
+      expand(),
     ]
   
 })
@@ -21,7 +24,13 @@ export class ContactComponent implements OnInit {
 
   feedbackForm: FormGroup;
   feedback: Feedback;
+  feedbackErrMess: string;
   contactType = ContactType;
+  submitResult: Feedback;
+  submission: boolean = false;
+  showSubmission: boolean = false;
+  visibility = 'shown';
+
   formErrors = {
     'firstname': '',
     'lastname': '',
@@ -51,7 +60,8 @@ export class ContactComponent implements OnInit {
   };
 
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,
+              private feedbackservice: FeedbackService) {
     this.createForm();
   }
 
@@ -90,8 +100,35 @@ export class ContactComponent implements OnInit {
       }
     }
   }
-
   onSubmit() {
+    this.submission = true;
+    this.showSubmission = true;
+    this.visibility = 'shown'; 
+    const feedback = this.feedbackForm.value; 
+
+    this.feedbackservice.submitFeedback(feedback) 
+    .subscribe(feedback => {
+      this.submitResult = feedback;
+      this.submission = false;
+      setTimeout(() => this.resetForm(), 5000);
+    })
+  }
+
+  resetForm() {
+    this.showSubmission = false;
+    this.submitResult = null;
+    this.feedbackForm.reset({
+      firstname: '',
+      lastname: '',
+      telnum: '',
+      email: '',
+      agree: false,
+      contacttype: 'None',
+      message: ''
+    });
+  }
+
+  /* onSubmit() {
     this.feedback = this.feedbackForm.value;
     console.log(this.feedback);
     this.feedbackForm.reset({
@@ -103,6 +140,6 @@ export class ContactComponent implements OnInit {
       contacttype: 'None',
       message: ''
     });
-  }
+  } */
 
 }
